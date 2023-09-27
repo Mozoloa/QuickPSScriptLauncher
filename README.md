@@ -1,5 +1,5 @@
 # QuickPSScriptLauncher
-A quick way to launch scripts, handy for your numerous cloned githubs if you use conda etc
+*A quick way to launch scripts, handy for your numerous cloned githubs if you use conda etc*
 
 1. Git clone this repo
 2. Right click main.ps1 > run with powershell
