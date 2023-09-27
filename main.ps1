@@ -4,7 +4,7 @@ if (-Not (Test-Path -Path $shortcutPath)) {
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($shortcutPath)
     $Shortcut.TargetPath = 'powershell.exe'
-    $Shortcut.Arguments = "-ExecutionPolicy Bypass -File `"$($MyInvocation.MyCommand.Definition)`""
+    $Shortcut.Arguments = "-ExecutionPolicy Bypass -windowstyle minimized -File `"$($MyInvocation.MyCommand.Definition)`""
     $Shortcut.IconLocation = 'powershell.exe,0' # Set icon to PowerShell icon
     $Shortcut.Save()
 }
@@ -33,7 +33,7 @@ function Refresh-UI {
         $groupBox.Dock = "Top"
         <# $groupBox.Location = New-Object System.Drawing.Point(10, $totalHeight) #>
         $groupBox.AutoSize = "true"
-        $groupBox.Padding = "10,0,10,10"
+        $groupBox.Padding = 10
         $Form.Controls.Add($groupBox)
 
         foreach ($script in $scripts) {
@@ -70,6 +70,7 @@ $form.MinimumSize = New-Object System.Drawing.Size(300, 100)
 $form.Padding = 10
 $form.AutoSize = $true
 $form.AutoSizeMode = "GrowAndShrink"
+$form.StartPosition = "CenterScreen"
 
 Refresh-UI -Form $form -ScriptPath $scriptPath
 
