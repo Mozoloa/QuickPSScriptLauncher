@@ -16,5 +16,4 @@ cd "path/to/repo"
 conda activate envname
 git pull
 python app.py
-
 ```
