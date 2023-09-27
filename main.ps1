@@ -31,7 +31,6 @@ function Refresh-UI {
         $groupBox = New-Object System.Windows.Forms.GroupBox
         $groupBox.Text = $folder.Name
         $groupBox.Dock = "Top"
-        <# $groupBox.Location = New-Object System.Drawing.Point(10, $totalHeight) #>
         $groupBox.AutoSize = "true"
         $groupBox.Padding = 10
         $Form.Controls.Add($groupBox)
@@ -41,8 +40,13 @@ function Refresh-UI {
             $button.Dock = "Top"
             $button.Size = New-Object System.Drawing.Size(240, 23)
             $button.Text = $script.BaseName
+            $button.Tag = $script.FullName
             $button.Add_Click({
-                    $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$($script.FullName)`""
+                    # Retrieve the script path from the Tag property of the sender
+                    $button = $this -as [System.Windows.Forms.Button]
+                    $path = $button.Tag
+                    $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$path`""
+                    Write-Host $arguments
                     Start-Process PowerShell -ArgumentList $arguments
                 })
             $groupBox.Controls.Add($button)
