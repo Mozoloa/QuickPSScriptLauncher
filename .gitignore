@@ -1,3 +1,4 @@
 scripts/*
-QuickScriptLauncher.lnk
 !example
+!PlaceYourScriptsInASubfolderHere.txt
+QuickPSScriptLauncher.lnk
