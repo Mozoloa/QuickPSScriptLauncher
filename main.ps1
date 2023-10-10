@@ -81,12 +81,14 @@ function Refresh-UI {
     $updateButton.Dock = "Bottom"
     $updateButton.Add_Click({
             $scriptDir = $PSScriptRoot
-            Start-Process PowerShell -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-Command & {
+            Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass", "-Command & {
             Set-Location '$scriptDir';
             if (Test-Path '.git') {
+                Write-Host 'Relaunching in update mode, do not close this window'
                 git pull;
                 Start-Sleep -Seconds 2; # Sleep for 2 seconds to give the user time to see the result
-                & '$MyInvocation.MyCommand.Definition'; # Relaunch the script
+                Write-Host 'Opening...'
+                & main.ps1; # Relaunch the script
             } else {
                 Write-Host 'Not a git repository.'
             }
