@@ -53,16 +53,47 @@ function Refresh-UI {
         }
     }
 
+    # Refresh button
     $refreshButton = New-Object System.Windows.Forms.Button
-    $refreshButton.Size = New-Object System.Drawing.Size(240, 23)
+    $refreshButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
     $refreshButton.Text = "Refresh"
     $refreshButton.Dock = "Bottom"
-
     $refreshButton.Add_Click({
             Refresh-UI -Form $Form -ScriptPath $ScriptPath
         })
-
     $Form.Controls.Add($refreshButton)
+
+    # Open Folder button
+    $openFolderButton = New-Object System.Windows.Forms.Button
+    $openFolderButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
+    $openFolderButton.Text = "Open Folder"
+    $openFolderButton.Dock = "Bottom"
+    $openFolderButton.Add_Click({
+            Start-Process explorer.exe -ArgumentList $ScriptPath
+        })
+    $Form.Controls.Add($openFolderButton)
+
+
+    # Update button
+    $updateButton = New-Object System.Windows.Forms.Button
+    $updateButton.Size = New-Object System.Drawing.Size(80, 23)
+    $updateButton.Text = "Update"
+    $updateButton.Dock = "Bottom"
+    $updateButton.Add_Click({
+            $scriptDir = $PSScriptRoot
+            Start-Process PowerShell -ArgumentList "-NoProfile", "-ExecutionPolicy Bypass", "-Command & {
+            Set-Location '$scriptDir';
+            if (Test-Path '.git') {
+                git pull;
+                Start-Sleep -Seconds 2; # Sleep for 2 seconds to give the user time to see the result
+                & '$MyInvocation.MyCommand.Definition'; # Relaunch the script
+            } else {
+                Write-Host 'Not a git repository.'
+            }
+        }"
+            $form.Close() # Close the current UI
+        })
+    $Form.Controls.Add($updateButton)
 }
 
 $scriptPath = (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Definition) "scripts")
