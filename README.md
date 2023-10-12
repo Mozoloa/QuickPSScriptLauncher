@@ -26,7 +26,7 @@
 
 ## Script example
 *Using a github repo with conda env*
-```ps
+```
 $location =  "path/to/repo" # It's important to set this variable, else the  📂 and PS buttons won't appear 
 Set-location $location
 conda activate envname
