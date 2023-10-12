@@ -30,8 +30,8 @@
 
 ## Script example
 *Using a github repo with conda env*
-```
-$location =  "path/to/repo" # It's important to set this variable, else the  📂 and 📺 buttons won't appear 
+```ps
+$location =  "path/to/repo" # Set this variable to get the extra buttons on the UI
 Set-location $location
 conda activate envname
 git pull # if you want to auto update
