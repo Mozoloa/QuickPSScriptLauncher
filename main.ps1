@@ -36,21 +36,59 @@ function Refresh-UI {
         $Form.Controls.Add($groupBox)
 
         foreach ($script in $scripts) {
+            $tablePanel = New-Object System.Windows.Forms.TableLayoutPanel
+            $tablePanel.Dock = "Top"
+            $tablePanel.RowCount = 1
+            $tablePanel.Height = 30
+            $tablePanel.ColumnCount = 3  # Changed from 2 to 3
+            $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 100))) # Default to full width
+                      
+            # Create the script execution button
             $button = New-Object System.Windows.Forms.Button
-            $button.Dock = "Top"
-            $button.Size = New-Object System.Drawing.Size(240, 23)
-            $button.Text = $script.BaseName
+            $button.Dock = [System.Windows.Forms.DockStyle]::Fill
+            $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
+            $button.Text = "▶️ $($script.BaseName)"
+            $button.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
             $button.Tag = $script.FullName
             $button.Add_Click({
-                    # Retrieve the script path from the Tag property of the sender
-                    $button = $this -as [System.Windows.Forms.Button]
-                    $path = $button.Tag
+                    $path = $this.Tag
                     $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$path`""
-                    Write-Host $arguments
                     Start-Process PowerShell -ArgumentList $arguments
                 })
-            $groupBox.Controls.Add($button)
+            $tablePanel.Controls.Add($button, 0, 0) # Add button to first column
+        
+            # Check for $location variable in the script
+            $scriptContent = Get-Content -Path $script.FullName -Raw
+            if ($scriptContent -match '^\s*\$location\s*=\s*"([^"]+)"') {
+                $locationPath = $matches[1]
+                $locationButton = New-Object System.Windows.Forms.Button
+                $locationButton.Dock = [System.Windows.Forms.DockStyle]::Fill
+                $locationButton.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
+                $locationButton.Text = "📂"
+                $locationButton.Tag = $locationPath
+                $locationButton.Add_Click({
+                        Start-Process explorer.exe -ArgumentList $this.Tag
+                    })
+                $tablePanel.Controls.Add($locationButton, 1, 0) # Add button to second column
+
+                $powershellButton = New-Object System.Windows.Forms.Button
+                $powershellButton.Dock = [System.Windows.Forms.DockStyle]::Fill
+                $powershellButton.Text = "PS"
+                $powershellButton.Tag = $locationPath
+                $powershellButton.Add_Click({
+                        Start-Process PowerShell -ArgumentList "-NoExit", "-Command", "cd '$($this.Tag)'"
+                    })
+                $tablePanel.Controls.Add($powershellButton, 2, 0) # Add button to third column
+            
+                $tablePanel.ColumnStyles[0].Width = 70  # Adjust the first column to 70%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 15))) # Set second column to 15%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 15))) # Set third column to 15%
+
+            }
+        
+            $groupBox.Controls.Add($tablePanel)
         }
+
     }
 
     # Refresh button
@@ -112,3 +150,4 @@ $form.StartPosition = "CenterScreen"
 Refresh-UI -Form $form -ScriptPath $scriptPath
 
 [void]$form.ShowDialog()
+
