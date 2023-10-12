@@ -21,6 +21,71 @@ $btnCol = [System.Drawing.ColorTranslator]::FromHtml("#202020")
 $style = [System.Windows.Forms.FlatStyle]::Flat
 $iconSize = 15
 
+# Define styles for different types of buttons
+function PrimaryButton {
+    param (
+        [string]$Text,
+        [string]$Tag,
+        [scriptblock]$OnClick
+    )
+
+    $button = New-Object System.Windows.Forms.Button
+    $button.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
+    $button.Image = $LaunchIcon
+    $button.ImageAlign = [System.Drawing.ContentAlignment]::MiddleRight
+    $button.Text = $Text
+    $button.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
+    $button.Tag = $Tag
+    $button.FlatStyle = $style
+    $button.FlatAppearance.BorderSize = 0
+    $button.FlatAppearance.MouseOverBackColor = $hoverCol
+    $button.BackColor = $btnCol
+    $button.Add_Click($OnClick)
+
+    return $button
+}
+
+function SecondaryButton {
+    param (
+        [System.Drawing.Image]$Image,
+        [string]$Tag,
+        [scriptblock]$OnClick
+    )
+
+    $button = New-Object System.Windows.Forms.Button
+    $button.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $button.Image = $Image
+    $button.ImageAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+    $button.Text = ""
+    $button.Tag = $Tag
+    $button.FlatStyle = $style
+    $button.BackColor = $bgCol
+    $button.ForeColor = $secondCol
+    $button.FlatAppearance.BorderSize = 0
+    $button.FlatAppearance.MouseOverBackColor = $bgCol
+    $button.Add_Click($OnClick)
+
+    return $button
+}
+
+function ActionButton {
+    param (
+        [string]$Text,
+        [scriptblock]$OnClick,
+        [string]$anchor
+    )
+    $button = New-Object System.Windows.Forms.Button
+    $button.Text = $Text
+    $button.Dock = "Bottom"
+    $button.FlatStyle = $style
+    $button.AutoSize = $true
+    $button.Width = 82
+    $button.Add_Click($OnClick)
+
+    return $button
+}
+
 function Get-Icon {
     param (
         [string]$iconPath,
@@ -54,7 +119,7 @@ function Refresh-UI {
             continue
         }
         $groupBox = New-Object System.Windows.Forms.GroupBox
-        $groupBox.Text = $folder.Name
+        $groupBox.Text = $folder.Name.ToUpper()
         $groupBox.Dock = "Top"
         $groupBox.AutoSize = "true"
         $groupBox.Padding = 10
@@ -71,62 +136,33 @@ function Refresh-UI {
             $tablePanel.ForeColor = $accentCol
             $tablePanel.ColumnCount = 3  # Changed from 2 to 3
             $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 100))) # Default to full width
-                      
+            
+
             # Create the script execution button
-            $button = New-Object System.Windows.Forms.Button
-            $button.Dock = [System.Windows.Forms.DockStyle]::Fill
-            $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
-            $button.Image = $LaunchIcon
-            $button.ImageAlign = [System.Drawing.ContentAlignment]::MiddleRight
-            $button.Text = "$($script.BaseName)"
-            $button.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
-            $button.Tag = $script.FullName
-            $button.FlatStyle = $style
-            $button.FlatAppearance.BorderSize = 0
-            $button.FlatAppearance.MouseOverBackColor = $hoverCol
-            $button.BackColor = $btnCol
-            $button.Add_Click({
-                    $path = $this.Tag
-                    $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$path`""
-                    Start-Process PowerShell -ArgumentList $arguments
-                })
+            $executeButtonAction = {
+                $path = $this.Tag
+                $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$path`""
+                Start-Process PowerShell -ArgumentList $arguments
+            }
+            $button = PrimaryButton -Text "$($script.BaseName)" -Tag $script.FullName -OnClick $executeButtonAction
             $tablePanel.Controls.Add($button, 0, 0) # Add button to first column
         
             # Check for $location variable in the script
             $scriptContent = Get-Content -Path $script.FullName -Raw
             if ($scriptContent -match '^\s*\$location\s*=\s*"([^"]+)"') {
+
+                $locationButtonAction = {
+                    Start-Process explorer.exe -ArgumentList $this.Tag
+                }
+
                 $locationPath = $matches[1]
-                $locationButton = New-Object System.Windows.Forms.Button
-                $locationButton.Dock = [System.Windows.Forms.DockStyle]::Fill
-                $locationButton.Image = $openFolderImage
-                $locationButton.ImageAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-                $locationButton.Text = ""
-                $locationButton.Image = $openFolderImage
-                $locationButton.Tag = $locationPath
-                $locationButton.FlatStyle = $style
-                $locationButton.BackColor = $bgCol
-                $locationButton.ForeColor = $secondCol
-                $locationButton.FlatAppearance.BorderSize = 0
-                $locationButton.FlatAppearance.MouseOverBackColor = $bgCol
-                $locationButton.Add_Click({
-                        Start-Process explorer.exe -ArgumentList $this.Tag
-                    })
+                $locationButton = SecondaryButton -Image $openFolderImage -Tag $locationPath -OnClick $locationButtonAction
                 $tablePanel.Controls.Add($locationButton, 1, 0) # Add button to second column
 
-                $powershellButton = New-Object System.Windows.Forms.Button
-                $powershellButton.Dock = [System.Windows.Forms.DockStyle]::Fill
-                $powershellButton.Image = $PSIcon
-                $powershellButton.ImageAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-                $powershellButton.Text = ""
-                $powershellButton.Tag = $locationPath
-                $powershellButton.FlatStyle = $style
-                $powershellButton.BackColor = $bgCol
-                $powershellButton.ForeColor = $secondCol
-                $powershellButton.FlatAppearance.BorderSize = 0
-                $powershellButton.FlatAppearance.MouseOverBackColor = $bgCol
-                $powershellButton.Add_Click({
-                        Start-Process PowerShell -ArgumentList "-NoExit", "-Command", "cd '$($this.Tag)'"
-                    })
+                $powershellButtonAction = {
+                    Start-Process PowerShell -ArgumentList "-NoExit", "-Command", "cd '$($this.Tag)'"
+                }
+                $powershellButton = SecondaryButton -Image $PSIcon -Tag $locationPath -OnClick $powershellButtonAction                
                 $tablePanel.Controls.Add($powershellButton, 2, 0) # Add button to third column
             
                 $tablePanel.ColumnStyles[0].Width = 70  # Adjust the first column to 70%
@@ -140,41 +176,36 @@ function Refresh-UI {
 
     }
 
+    # Create a FlowLayoutPanel
+    $bottomPanel = New-Object System.Windows.Forms.FlowLayoutPanel
+    $bottomPanel.Dock = "Bottom"
+    $bottomPanel.FlowDirection = [System.Windows.Forms.FlowDirection]::TopDown
+    $bottomPanel.Padding = New-Object System.Windows.Forms.Padding(0, 10, 0, 0) # Padding between items
+    $bottomPanel.AutoSize = $true
+    $bottomPanel.AutoSizeMode = "GrowAndShrink"
+    $form.Controls.Add($bottomPanel)
+
     # Refresh button
-    $refreshButton = New-Object System.Windows.Forms.Button
-    $refreshButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
-    $refreshButton.Text = "Refresh"
-    $refreshButton.Dock = "Bottom"
-    $refreshButton.FlatStyle = $style
-    $refreshButton.Add_Click({
-            Refresh-UI -Form $Form -ScriptPath $ScriptPath
-        })
-    $Form.Controls.Add($refreshButton)
+    $refreshButtonAction = { Refresh-UI -Form $Form -ScriptPath $ScriptPath }
+    $refreshButton = ActionButton -Text "Refresh" -OnClick $refreshButtonAction
 
     # Open Folder button
-    $openFolderButton = New-Object System.Windows.Forms.Button
-    $openFolderButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
-    $openFolderButton.Text = "Open Folder"
-    $openFolderButton.Dock = "Bottom"
-    $openFolderButton.FlatStyle = $style
-    $openFolderButton.Add_Click({
-            Start-Process explorer.exe -ArgumentList $ScriptPath
-        })
-    $Form.Controls.Add($openFolderButton)
+    $openButtonAction = { Start-Process explorer.exe -ArgumentList $ScriptPath }
+    $openFolderButton = ActionButton -Text "Scripts" -OnClick $openButtonAction
 
 
     # Update button
-    $updateButton = New-Object System.Windows.Forms.Button
-    $updateButton.Size = New-Object System.Drawing.Size(80, 23)
-    $updateButton.Text = "Update"
-    $updateButton.Dock = "Bottom"
-    $updateButton.FlatStyle = $style
-    $updateButton.Add_Click({
-            $scriptDir = $PSScriptRoot
-            Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass -file  $scriptDir\update.ps1"
-            $form.Close() # Close the current UI
-        })
-    $Form.Controls.Add($updateButton)
+    $updateButtonAction = {
+        $scriptDir = $PSScriptRoot
+        Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass", "-file `"$scriptDir\update.ps1`""
+        $form.Close() 
+    }
+    $updateButton = ActionButton -Text "Update" -OnClick $updateButtonAction -anchor "Right"
+
+    # Add buttons to the bottom panel
+    $bottomPanel.Controls.Add($refreshButton)
+    $bottomPanel.Controls.Add($openFolderButton)
+    $bottomPanel.Controls.Add($updateButton)
 }
 
 $scriptPath = (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Definition) "scripts")
@@ -189,6 +220,8 @@ $form.BackColor = $bgCol
 $form.ForeColor = $accentCol
 $form.AutoSizeMode = "GrowAndShrink"
 $form.StartPosition = "CenterScreen"
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
 
 Refresh-UI -Form $form -ScriptPath $scriptPath
 
