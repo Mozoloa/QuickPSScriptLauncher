@@ -6,21 +6,16 @@
 2. Right click main.ps1 > run with powershell
 3. A shortcut will be created at the root, use it to add the program to your taskbar if you want
 4. Place your scripts in a subfolder **(not at the root)** of the "scripts" folder, they will then appear in the UI after you hit **Refresh**
-5. Example of folder structure :
+5. Example of correct folder structure :
 ```md
 📄 main.ps1
 📂 scripts
 ├── 📂 Deepfake
-│   ├── 📄 FaceFusion.ps1
+│   └── 📄 FaceFusion.ps1
 ├── 📂 Image
 │   ├── 📄 FastCaption.ps1
-│   ├── 📄 Kohya.ps1
-├── 📂 Language
-│   ├── 📄 Whisper.ps1
-└── 📂 Music
-    ├── 📄 Demucs.ps1
-    ├── 📄 Music.ps1
-    └── 📄 MusicGenInfinity.ps1
+│   └── 📄 Kohya.ps1
+...
 ```
 6. Launch your scripts by clicking the `▶️` button, they should be launched in a new powershell window
 7. browse to the execution `$location` of the script by clicking the `📂` button (see *Script Example* bellow)
