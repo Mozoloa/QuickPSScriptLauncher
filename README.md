@@ -12,11 +12,11 @@
 
 
 ## Script example
+*Using a github repo with conda env*
 ```ps
-# Here's an example script to uncomment and modify if you want
-$location =  "path/to/repo" 
+$location =  "path/to/repo" # It's important to set this variable, else the  📂 and PS buttons won't appear 
 Set-location $location
 conda activate envname
-git pull
+git pull # if you want to auto update
 python app.py
 ```
