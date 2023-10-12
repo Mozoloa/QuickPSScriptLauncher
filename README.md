@@ -27,7 +27,7 @@
 ## Script example
 *Using a github repo with conda env*
 ```
-$location =  "path/to/repo" # It's important to set this variable, else the  📂 and PS buttons won't appear 
+$location =  "path/to/repo" # It's important to set this variable, else the  📂 and 📺 buttons won't appear 
 Set-location $location
 conda activate envname
 git pull # if you want to auto update
