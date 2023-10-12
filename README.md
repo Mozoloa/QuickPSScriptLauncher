@@ -19,7 +19,7 @@
 ```
 6. Launch your scripts by clicking the `▶️` button, they should be launched in a new powershell window
 7. browse to the execution `$location` of the script by clicking the `📂` button (see *Script Example* bellow)
-8. launch a powershell windows in this execution `$location` by clicking the `PS` button (see *Script Example* bellow)
+8. launch a powershell windows in this execution `$location` by clicking the `📺` button (see *Script Example* bellow)
 9. Click `Open Folder` to open the script library
 10. Click `Update` to `git pull` this repository for updates (⚠️ ***experimental, only works if you git cloned this repo***) 
 

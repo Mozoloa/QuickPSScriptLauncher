@@ -12,6 +12,32 @@ if (-Not (Test-Path -Path $shortcutPath)) {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+$bgCol = [System.Drawing.ColorTranslator]::FromHtml("#050505")
+$accentCol = [System.Drawing.ColorTranslator]::FromHtml("#ffbb50")
+$hoverCol = [System.Drawing.ColorTranslator]::FromHtml("#201000")
+$primCol = [System.Drawing.ColorTranslator]::FromHtml("#1c0f01")
+$secondCol = [System.Drawing.ColorTranslator]::FromHtml("#999999")
+$btnCol = [System.Drawing.ColorTranslator]::FromHtml("#202020")
+$style = [System.Windows.Forms.FlatStyle]::Flat
+$iconSize = 15
+
+function Get-Icon {
+    param (
+        [string]$iconPath,
+        [int]$width = $iconSize,
+        [int]$height = $iconSize
+    )
+
+    $icon = [System.Drawing.Image]::FromFile((Join-Path $PSScriptRoot $iconPath))
+    return $icon.GetThumbnailImage($width, $height, $null, [IntPtr]::Zero)
+}
+
+$PSIcon = Get-Icon ".\icons\ps.png"
+$openFolderImage = Get-Icon ".\icons\browse.png"
+$LaunchIcon = Get-Icon ".\icons\launch.png"
+
+
+
 # Run the UI
 function Refresh-UI {
     param (
@@ -27,19 +53,22 @@ function Refresh-UI {
         if ($scripts.Count -eq 0) {
             continue
         }
-
         $groupBox = New-Object System.Windows.Forms.GroupBox
         $groupBox.Text = $folder.Name
         $groupBox.Dock = "Top"
         $groupBox.AutoSize = "true"
         $groupBox.Padding = 10
+        $groupBox.ForeColor = $secondCol
+        
         $Form.Controls.Add($groupBox)
+        
 
         foreach ($script in $scripts) {
             $tablePanel = New-Object System.Windows.Forms.TableLayoutPanel
             $tablePanel.Dock = "Top"
             $tablePanel.RowCount = 1
             $tablePanel.Height = 30
+            $tablePanel.ForeColor = $accentCol
             $tablePanel.ColumnCount = 3  # Changed from 2 to 3
             $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 100))) # Default to full width
                       
@@ -47,9 +76,15 @@ function Refresh-UI {
             $button = New-Object System.Windows.Forms.Button
             $button.Dock = [System.Windows.Forms.DockStyle]::Fill
             $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
-            $button.Text = "▶️ $($script.BaseName)"
+            $button.Image = $LaunchIcon
+            $button.ImageAlign = [System.Drawing.ContentAlignment]::MiddleRight
+            $button.Text = "$($script.BaseName)"
             $button.TextAlign = [System.Drawing.ContentAlignment]::MiddleLeft
             $button.Tag = $script.FullName
+            $button.FlatStyle = $style
+            $button.FlatAppearance.BorderSize = 0
+            $button.FlatAppearance.MouseOverBackColor = $hoverCol
+            $button.BackColor = $btnCol
             $button.Add_Click({
                     $path = $this.Tag
                     $arguments = "-ExecutionPolicy Bypass -NoExit -File `"$path`""
@@ -63,9 +98,16 @@ function Refresh-UI {
                 $locationPath = $matches[1]
                 $locationButton = New-Object System.Windows.Forms.Button
                 $locationButton.Dock = [System.Windows.Forms.DockStyle]::Fill
-                $locationButton.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
-                $locationButton.Text = "📂"
+                $locationButton.Image = $openFolderImage
+                $locationButton.ImageAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+                $locationButton.Text = ""
+                $locationButton.Image = $openFolderImage
                 $locationButton.Tag = $locationPath
+                $locationButton.FlatStyle = $style
+                $locationButton.BackColor = $bgCol
+                $locationButton.ForeColor = $secondCol
+                $locationButton.FlatAppearance.BorderSize = 0
+                $locationButton.FlatAppearance.MouseOverBackColor = $bgCol
                 $locationButton.Add_Click({
                         Start-Process explorer.exe -ArgumentList $this.Tag
                     })
@@ -73,16 +115,23 @@ function Refresh-UI {
 
                 $powershellButton = New-Object System.Windows.Forms.Button
                 $powershellButton.Dock = [System.Windows.Forms.DockStyle]::Fill
-                $powershellButton.Text = "PS"
+                $powershellButton.Image = $PSIcon
+                $powershellButton.ImageAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+                $powershellButton.Text = ""
                 $powershellButton.Tag = $locationPath
+                $powershellButton.FlatStyle = $style
+                $powershellButton.BackColor = $bgCol
+                $powershellButton.ForeColor = $secondCol
+                $powershellButton.FlatAppearance.BorderSize = 0
+                $powershellButton.FlatAppearance.MouseOverBackColor = $bgCol
                 $powershellButton.Add_Click({
                         Start-Process PowerShell -ArgumentList "-NoExit", "-Command", "cd '$($this.Tag)'"
                     })
                 $tablePanel.Controls.Add($powershellButton, 2, 0) # Add button to third column
             
                 $tablePanel.ColumnStyles[0].Width = 70  # Adjust the first column to 70%
-                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 15))) # Set second column to 15%
-                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 15))) # Set third column to 15%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 12))) # Set second column to 15%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 12))) # Set third column to 15%
 
             }
         
@@ -96,6 +145,7 @@ function Refresh-UI {
     $refreshButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
     $refreshButton.Text = "Refresh"
     $refreshButton.Dock = "Bottom"
+    $refreshButton.FlatStyle = $style
     $refreshButton.Add_Click({
             Refresh-UI -Form $Form -ScriptPath $ScriptPath
         })
@@ -106,6 +156,7 @@ function Refresh-UI {
     $openFolderButton.Size = New-Object System.Drawing.Size(115, 23) # Half the original width
     $openFolderButton.Text = "Open Folder"
     $openFolderButton.Dock = "Bottom"
+    $openFolderButton.FlatStyle = $style
     $openFolderButton.Add_Click({
             Start-Process explorer.exe -ArgumentList $ScriptPath
         })
@@ -117,20 +168,10 @@ function Refresh-UI {
     $updateButton.Size = New-Object System.Drawing.Size(80, 23)
     $updateButton.Text = "Update"
     $updateButton.Dock = "Bottom"
+    $updateButton.FlatStyle = $style
     $updateButton.Add_Click({
             $scriptDir = $PSScriptRoot
-            Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass", "-Command & {
-            Set-Location '$scriptDir';
-            if (Test-Path '.git') {
-                Write-Host 'Relaunching in update mode, do not close this window'
-                git pull;
-                Start-Sleep -Seconds 2; # Sleep for 2 seconds to give the user time to see the result
-                Write-Host 'Opening...'
-                & main.ps1; # Relaunch the script
-            } else {
-                Write-Host 'Not a git repository.'
-            }
-        }"
+            Start-Process PowerShell -ArgumentList "-ExecutionPolicy Bypass -file  $scriptDir\update.ps1"
             $form.Close() # Close the current UI
         })
     $Form.Controls.Add($updateButton)
@@ -139,11 +180,13 @@ function Refresh-UI {
 $scriptPath = (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Definition) "scripts")
 
 $form = New-Object System.Windows.Forms.Form 
-$form.Text = 'Script Launcher'
+$form.Text = "Script Launcher"
 $form.AutoScroll = $true
 $form.MinimumSize = New-Object System.Drawing.Size(300, 100)
 $form.Padding = 10
 $form.AutoSize = $true
+$form.BackColor = $bgCol
+$form.ForeColor = $accentCol
 $form.AutoSizeMode = "GrowAndShrink"
 $form.StartPosition = "CenterScreen"
 
