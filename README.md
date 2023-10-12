@@ -3,10 +3,9 @@
 
 ## Installation & Usage
 1. Git clone this repo
-2. Right click main.ps1 > run with powershell
-3. A shortcut will be created at the root, use it to add the program to your taskbar if you want
-4. Place your scripts in a subfolder **(not at the root)** of the "scripts" folder, they will then appear in the UI after you hit **Refresh**
-5. Example of correct folder structure :
+2. Right click `main.ps1` > `run with powershell` *(An optional taskbar pin-able shortcut will appear next to it)*
+3. Create personalised *category* subfolders inside **scripts** to put your scripts in
+4. Example of correct folder structure :
 ```md
 📄 main.ps1
 📂 scripts
@@ -17,11 +16,16 @@
 │   └── 📄 Kohya.ps1
 ...
 ```
-6. Launch your scripts by clicking the `▶️` button, they should be launched in a new powershell window
-7. browse to the execution `$location` of the script by clicking the `📂` button (see *Script Example* bellow)
-8. launch a powershell windows in this execution `$location` by clicking the `📺` button (see *Script Example* bellow)
-9. Click `Scripts` to open the script library
-10. Click `Update` to `git pull` this repository for updates (⚠️ ***experimental, only works if you git cloned this repo***) 
+1. Hit `Refresh` to refresh the UI
+2. Launch your scripts by clicking on their name
+
+
+### Other buttons
+
+- `📂` : Browse to the execution `$location` of the script (see *Script Example* bellow)
+- `📺` : Launch a powershell windows in this execution `$location`
+- `Scripts` : Open the script library
+- `Update` : Execute `git pull` in this repository for updates (⚠️ ***experimental, only works if you git cloned this repo***) 
 
 
 ## Script example
