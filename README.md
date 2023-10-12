@@ -9,6 +9,8 @@
 5. Launch your scripts by clicking the `▶️` button, they should be launched in a new powershell window
 6. browse to the execution `$location` of the script by clicking the `📂` button (see *Script Example* bellow)
 7. launch a powershell windows in this execution `$location` by clicking the `PS` button (see *Script Example* bellow)
+8. Click `Open Folder` to open the script library
+9. Click `Update` to `git pull` this repository for updates (⚠️ ***experimental, only works if you git cloned this repo***) 
 
 
 ## Script example
@@ -20,3 +22,5 @@ conda activate envname
 git pull # if you want to auto update
 python app.py
 ```
+## Current UI
+![Alt text](ReadmeImages/UI.png)
