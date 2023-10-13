@@ -31,7 +31,7 @@ function PrimaryButton {
 
     $button = New-Object System.Windows.Forms.Button
     $button.Dock = [System.Windows.Forms.DockStyle]::Fill
-    $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 9)
+    $button.Font = New-Object System.Drawing.Font("Segoe UI Emoji", 10)
     $button.Image = $LaunchIcon
     $button.ImageAlign = [System.Drawing.ContentAlignment]::MiddleRight
     $button.Text = $Text
@@ -165,9 +165,9 @@ function Refresh-UI {
                 $powershellButton = SecondaryButton -Image $PSIcon -Tag $locationPath -OnClick $powershellButtonAction                
                 $tablePanel.Controls.Add($powershellButton, 2, 0) # Add button to third column
             
-                $tablePanel.ColumnStyles[0].Width = 70  # Adjust the first column to 70%
-                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 12))) # Set second column to 15%
-                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 12))) # Set third column to 15%
+                $tablePanel.ColumnStyles[0].Width = 80  # Adjust the first column to 70%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10))) # Set second column to 15%
+                $tablePanel.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10))) # Set third column to 15%
 
             }
         
@@ -210,7 +210,8 @@ function Refresh-UI {
 
 $scriptPath = (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Definition) "scripts")
 
-$form = New-Object System.Windows.Forms.Form 
+$form = New-Object System.Windows.Forms.Form
+$form.Font = New-Object System.Drawing.Font("Segoe ui", 12, [System.Drawing.FontStyle]::Regular)
 $form.Text = "Script Launcher"
 $form.AutoScroll = $true
 $form.MinimumSize = New-Object System.Drawing.Size(300, 100)
